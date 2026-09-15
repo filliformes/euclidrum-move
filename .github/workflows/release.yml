@@ -40,18 +40,21 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           REPO=${{ github.repository }}
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          # Check out the default branch FIRST, then write release.json — otherwise
+          # `git checkout -f` overwrites the freshly written file with the old version
+          # and the commit becomes a no-op (release.json never advances).
+          git fetch origin "$DEFAULT_BRANCH"
+          git checkout -f "$DEFAULT_BRANCH"
           cat > release.json <<EOFJ
           {
             "version": "${VERSION}",
             "download_url": "https://github.com/${REPO}/releases/download/v${VERSION}/euclidrum-module.tar.gz"
           }
           EOFJ
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git fetch origin "$DEFAULT_BRANCH"
-          git checkout -f "$DEFAULT_BRANCH"
           git add release.json
-          git commit -m "Update release.json to v${VERSION}" || true
+          git commit -m "Update release.json to v${VERSION} [skip ci]" || true
           git push origin "$DEFAULT_BRANCH"
 
       - uses: softprops/action-gh-release@v1
