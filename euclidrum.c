@@ -1636,6 +1636,10 @@ static void euclidrum_set_param(void *instance, const char *key, const char *val
     else if (strcmp(key, "state") == 0) {
         /* Bulk state restore */
         char s[64]; int parsed, i;
+        /* Apply "preset" FIRST: load_preset() overwrites swing, global_vel_rnd, and
+         * lane geometry/levels, so the individually-saved values must land AFTER it.
+         * (Lanes are already restored below, after this block.) */
+        if (json_get_int(val, "preset", &parsed)) { snprintf(s, sizeof(s), "%d", parsed); euclidrum_set_param(inst, "preset", s); }
         if (json_get_string(val, "rate", s, sizeof(s))) euclidrum_set_param(inst, "rate", s);
         if (json_get_string(val, "sync", s, sizeof(s))) euclidrum_set_param(inst, "sync", s);
         if (json_get_int(val, "bpm", &parsed)) { snprintf(s, sizeof(s), "%d", parsed); euclidrum_set_param(inst, "bpm", s); }
@@ -1648,7 +1652,6 @@ static void euclidrum_set_param(void *instance, const char *key, const char *val
         if (json_get_int(val, "mutation", &parsed)) { snprintf(s, sizeof(s), "%d", parsed); euclidrum_set_param(inst, "mutation", s); }
         if (json_get_int(val, "mutation_seed", &parsed)) { snprintf(s, sizeof(s), "%d", parsed); euclidrum_set_param(inst, "mutation_seed", s); }
         if (json_get_int(val, "global_vel_rnd", &parsed)) { snprintf(s, sizeof(s), "%d", parsed); euclidrum_set_param(inst, "global_vel_rnd", s); }
-        if (json_get_int(val, "preset", &parsed)) { snprintf(s, sizeof(s), "%d", parsed); euclidrum_set_param(inst, "preset", s); }
         if (json_get_string(val, "passthrough", s, sizeof(s))) euclidrum_set_param(inst, "passthrough", s);
         for (i = 0; i < MAX_LANES; i++) {
             static const char *lane_fields[] = {
