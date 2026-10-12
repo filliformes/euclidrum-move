@@ -10,14 +10,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Detect default branch
         run: |
           BRANCH=$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')
           echo "DEFAULT_BRANCH=$BRANCH" >> $GITHUB_ENV
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Build module
         run: |
@@ -57,6 +57,6 @@ jobs:
           git commit -m "Update release.json to v${VERSION} [skip ci]" || true
           git push origin "$DEFAULT_BRANCH"
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v3
         with:
           files: dist/euclidrum-module.tar.gz
